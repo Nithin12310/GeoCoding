@@ -19,13 +19,14 @@ public class Company extends Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String comapnyId;
+    private String companyId;
     private String companyName;
     private String password;
     private String descryption;
     private String contactNumber;
     private String emailId;
     private String gstNumber;
+    private String tenant;
 
 
 

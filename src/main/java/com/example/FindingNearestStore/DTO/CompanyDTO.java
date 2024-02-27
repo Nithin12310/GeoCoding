@@ -27,4 +27,5 @@ public class CompanyDTO extends Address {
     private String password;
     @NotNull(message = "GST Id must not be empty")@Size(min = 15,max = 15,message = "Company GST Id must be exactly 15 ")
     private String gstNumber;
+    private String tenant;
 }

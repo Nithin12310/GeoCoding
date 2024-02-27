@@ -68,3 +68,6 @@ server:
   servlet:
     session:
       timeout: 1
+
+
+defaultTenant: tenant_1

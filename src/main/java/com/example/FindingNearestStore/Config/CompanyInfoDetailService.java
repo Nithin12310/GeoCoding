@@ -19,7 +19,7 @@ public class CompanyInfoDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<Company> company= companyRepository.findBycompanyName(username);
-
+        System.out.println(company + "company details in companyInfoDetailService");
        // System.out.println(username);
        return company.map(CompanyInfoUserDetailService::new).orElseThrow(()-> new UsernameNotFoundException("Company Not Found"));
 

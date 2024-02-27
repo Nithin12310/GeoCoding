@@ -1,9 +1,6 @@
 package com.example.FindingNearestStore.API;
 
-import com.example.FindingNearestStore.DTO.AuthRequest;
-import com.example.FindingNearestStore.DTO.CompanyDTO;
-import com.example.FindingNearestStore.DTO.PayLoadRequestDTO;
-import com.example.FindingNearestStore.DTO.ResponseDTO;
+import com.example.FindingNearestStore.DTO.*;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +15,5 @@ public interface CompanyAPI {
     public ResponseEntity<ResponseDTO> addCompany(@Valid @RequestBody CompanyDTO companyDTO) ;
 
     @PostMapping("${companyLogin}")
-    public String login(@RequestBody PayLoadRequestDTO payLoadRequestDTO);
+    public TokenDTO login(@RequestBody PayLoadRequestDTO payLoadRequestDTO);
 }

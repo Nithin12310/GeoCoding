@@ -137,13 +137,23 @@ public class JWTServiceImplementation implements JWTService {
 
     private String createToken(Map<String, Object> claims, PayLoadRequestDTO payLoadRequestDTO) {
         Optional<Company> company= companyRepository.findBycompanyName(payLoadRequestDTO.getCompanyName());
-        Subscription subscriptions=subscriptionRepository. findBycompanyIdAndExpiryDateGreaterThan(company.get().getComapnyId(),new Date());
+        Optional<Subscription> subscriptions=subscriptionRepository. findBycompanyIdAndExpiryDateGreaterThan(company.get().getCompanyId(),new Date());
+        String companyId="";
 
+        String subscriptionId = "";
+        if(subscriptions.isEmpty()) {
+
+            companyId=payLoadRequestDTO.getCompanyId();
+        }
+        else {
+            companyId = subscriptions.get().getCompanyId();
+            subscriptionId = subscriptions.get().getSubscriptionId();
+        }
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(payLoadRequestDTO.companyName)
-                .claim("companyId",company.get().getComapnyId())
-                .claim("subscriptionId",subscriptions.getSubscriptionId())
+                .claim("companyId",companyId)
+                .claim("subscriptionId",subscriptionId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*30))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -153,11 +163,11 @@ public class JWTServiceImplementation implements JWTService {
         public Boolean validateToken(String token, UserDetails userDetails,PayLoadRequestDTO payLoadRequestDTO) {
         final String username = extractUsername(token);
             Optional<Company> company= companyRepository.findBycompanyName(username);
-            Optional<Plan_subscription_company_view> planView= planViewRepository.findBycompanyId(company.get().getComapnyId());
+            Optional<Plan_subscription_company_view> planView= planViewRepository.findBycompanyId(company.get().getCompanyId());
             if(company.isPresent()){
-                Plan_subscription_company_view plan_subscription_company_view= subscriptionService.getPlanDetailsByCompanyId(company.get().getComapnyId());
+                Plan_subscription_company_view plan_subscription_company_view= subscriptionService.getPlanDetailsByCompanyId(company.get().getCompanyId());
 
-                if(plan_subscription_company_view != null && subscriptionService.isSubscriptionValid(plan_subscription_company_view) ){
+                if(plan_subscription_company_view != null && subscriptionService.isSubscriptionValid(plan_subscription_company_view )|| extractSubscriptionId(token).equals("") ){
                     Map<String,Object> claims= new HashMap<>();
 //                    return createToken(claims,payLoadRequestDTcontentCachingResponseWrapper.copyBodyToResponse();O,company.get(),plan_subscription_company_view);
 

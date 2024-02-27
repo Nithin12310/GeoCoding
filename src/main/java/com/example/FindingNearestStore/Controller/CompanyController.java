@@ -1,11 +1,9 @@
 package com.example.FindingNearestStore.Controller;
 
 import com.example.FindingNearestStore.API.CompanyAPI;
-import com.example.FindingNearestStore.DTO.AuthRequest;
-import com.example.FindingNearestStore.DTO.CompanyDTO;
-import com.example.FindingNearestStore.DTO.PayLoadRequestDTO;
-import com.example.FindingNearestStore.DTO.ResponseDTO;
+import com.example.FindingNearestStore.DTO.*;
 import com.example.FindingNearestStore.Model.Company;
+import com.example.FindingNearestStore.Repository.CompanyRepository;
 import com.example.FindingNearestStore.Service.CompanyService;
 import com.example.FindingNearestStore.Service.JWTService;
 import org.apache.coyote.BadRequestException;
@@ -18,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 public class CompanyController implements CompanyAPI {
 @Autowired CompanyService companyService;
@@ -25,6 +25,8 @@ public class CompanyController implements CompanyAPI {
     JWTService jwtService;
 @Autowired
 AuthenticationManager authenticationManager;
+@Autowired
+    CompanyRepository companyRepository;
     @Override
     public ResponseEntity<ResponseDTO> addCompany(CompanyDTO companyDTO)  {
          Company company= companyService.addCompany(companyDTO);
@@ -33,12 +35,19 @@ AuthenticationManager authenticationManager;
     }
 
     @Override
-    public String login(PayLoadRequestDTO payLoadRequestDTO) {
+    public TokenDTO login(PayLoadRequestDTO payLoadRequestDTO) {
 
         Authentication authentication= authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(payLoadRequestDTO.getCompanyName(),payLoadRequestDTO.getPassword()));
         if(authentication.isAuthenticated()){
             System.out.println("hjhiww");
-            return jwtService.generateToken(payLoadRequestDTO);
+            String token= jwtService.generateToken(payLoadRequestDTO);
+            Optional<Company> company= companyRepository.findBycompanyName(payLoadRequestDTO.getCompanyName());
+            String companyId= company.get().getCompanyId();
+            String tenantId= company.get().getTenant    ();
+            TokenDTO tokenDTO= new TokenDTO();
+            tokenDTO.setToken(token);
+            tokenDTO.setTenantId(tenantId);
+            return tokenDTO;
 
         }
 

@@ -3,6 +3,7 @@ package com.example.FindingNearestStore.Filter;
 import com.example.FindingNearestStore.Config.CompanyInfoDetailService;
 import com.example.FindingNearestStore.DTO.PayLoadRequestDTO;
 //import com.example.FindingNearestStore.DTO.ResponseLogDTO;
+import com.example.FindingNearestStore.DataSource.TenantContext;
 import com.example.FindingNearestStore.Model.ResponseLog;
 import com.example.FindingNearestStore.Redis.RedisCount;
 import com.example.FindingNearestStore.Repository.ResponseLogRepository;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -52,7 +54,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
+//@Order(2)
 @Slf4j
+
 public class JWTAuthFilter extends OncePerRequestFilter {
     @Autowired
     JWTService jwtService;
@@ -91,7 +95,7 @@ protected boolean shouldNotFilter(HttpServletRequest httpServletRequest){
         String path= httpServletRequest.getRequestURI();
     ArrayList<String> arr= new ArrayList<>();
     arr.add("/company/add");
-    arr.add("/subscription");
+//    arr.add("/subscription/subscribe");
     arr.add("/plan/addPlan");
 //    arr.add("/store/findStores");
 
@@ -102,6 +106,9 @@ protected boolean shouldNotFilter(HttpServletRequest httpServletRequest){
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
                 System.out.println("welcome");
 
+        HttpServletRequest req = request;
+        String tenantId = req.getHeader("TenantID");
+        TenantContext.setCurrentTenant(tenantId);
         ContentCachingRequestWrapper contentCachingRequestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper contentCachingResponseWrapper = new ContentCachingResponseWrapper(response);
                 String subscriptionId="";
@@ -149,7 +156,6 @@ protected boolean shouldNotFilter(HttpServletRequest httpServletRequest){
 
 
             String expiry = apikey.split("_")[1];
-//            SimpleDateFormat format= new SimpleDateFormat("dd-MM-yyyy");
             SimpleDateFormat sdf = new SimpleDateFormat("EE MMM dd HH:mm:ss z yyyy",
                     Locale.ENGLISH);
             Date expiryDate;
@@ -184,7 +190,7 @@ protected boolean shouldNotFilter(HttpServletRequest httpServletRequest){
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
-                return;
+                    return;
             }
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -193,6 +199,8 @@ protected boolean shouldNotFilter(HttpServletRequest httpServletRequest){
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                System.out.println(username+"   name");
+
                 UserDetails userDetails = companyInfoDetailService.loadUserByUsername(username);
                 PayLoadRequestDTO payLoadRequestDTO = getPayLoadRequestDTO(request);
                 if (jwtService.validateToken(token, userDetails, payLoadRequestDTO)) {
