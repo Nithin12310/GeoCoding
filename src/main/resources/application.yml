@@ -12,7 +12,7 @@
 #username: user
 #password: root
 #
-
+#
 # Store related APi
 store: /store
 add: adddetails
@@ -45,7 +45,7 @@ spring:
   jpa:
     database: POSTGRESQL
     hibernate:
-      ddl-auto: update
+#      ddl-auto: update
       show-sql: true
 
   data:
@@ -68,3 +68,6 @@ server:
   servlet:
     session:
       timeout: 1
+
+
+defaultTenant: commondb

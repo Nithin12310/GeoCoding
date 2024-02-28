@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 
 import java.security.Security;
 
-@SpringBootApplication
+@SpringBootApplication()
 @EnableCaching
 public class FindingNearestStoreApplication {
 	public static void main(String[] args) {
